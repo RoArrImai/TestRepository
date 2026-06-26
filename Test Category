@@ -1,0 +1,154 @@
+# Status Teste: 
+
+Funcionalidade: Cadastro de Category com novos tributos CBS e IBS
+Objetivo:  Como usuário do OFS preciso que o cadastro de Category possua os novos tributos para que na transição da Reforma Tributária os cadastros passem por manutenção para adequação aos tributos vigentes
+
+Cobertura: CRUD completo (criar, editar, visualizar, remover) com e sem os novos tributos CBS e IBS
+- Filtro pelos novos campos
+- Não impacto nos tributos preexistentes (ISS, ICMS, ICMS ST, IPI, PIS, COFINS)
+- Regra de unicidade mantida
+- Auditoria dos novos campos
+
+Contexto: Dado que estou autenticado no sistema OFS e que estou na tela de cadastro de Category
+
+  # --- CRIAÇÃO ---
+
+  Cenário: Criar cadastro preenchendo os novos tributos CBS e IBS
+    Quando eu acessar a opção de criar um novo cadastro
+    E preencher os campos obrigatórios existentes
+    E preencher o campo "CBS" com um valor válido
+    E preencher o campo "IBS" com um valor válido
+    E confirmar a criação
+    Então o cadastro deve ser salvo com sucesso
+    E os valores de CBS e IBS devem estar visíveis no registro criado
+
+  Cenário: Criar cadastro sem preencher os novos tributos CBS e IBS
+    Quando eu acessar a opção de criar um novo cadastro
+    E preencher os campos obrigatórios existentes
+    E deixar o campo "CBS" vazio
+    E deixar o campo "IBS" vazio
+    E confirmar a criação
+    Então o cadastro deve ser salvo com sucesso
+    E os campos CBS e IBS devem estar vazios no registro criado
+
+  Cenário: Criar cadastro preenchendo apenas o tributo CBS
+    Quando eu acessar a opção de criar um novo cadastro
+    E preencher os campos obrigatórios existentes
+    E preencher o campo "CBS" com um valor válido
+    E deixar o campo "IBS" vazio
+    E confirmar a criação
+    Então o cadastro deve ser salvo com sucesso
+
+  Cenário: Criar cadastro preenchendo apenas o tributo IBS
+    Quando eu acessar a opção de criar um novo cadastro
+    E preencher os campos obrigatórios existentes
+    E deixar o campo "CBS" vazio
+    E preencher o campo "IBS" com um valor válido
+    E confirmar a criação
+    Então o cadastro deve ser salvo com sucesso
+
+  # --- EDIÇÃO ---
+
+  Cenário: Editar cadastro adicionando valores de CBS e IBS
+    Dado que existe um cadastro sem valores de CBS e IBS
+    Quando eu acessar a opção de editar o cadastro
+    E preencher o campo "CBS" com um valor válido
+    E preencher o campo "IBS" com um valor válido
+    E confirmar a edição
+    Então o cadastro deve ser atualizado com sucesso
+    E os novos valores de CBS e IBS devem estar visíveis
+
+  Cenário: Editar cadastro removendo valores de CBS e IBS
+    Dado que existe um cadastro com valores de CBS e IBS preenchidos
+    Quando eu acessar a opção de editar o cadastro
+    E limpar o campo "CBS"
+    E limpar o campo "IBS"
+    E confirmar a edição
+    Então o cadastro deve ser atualizado com sucesso
+    E os campos CBS e IBS devem estar vazios
+
+  Cenário: Editar cadastro sem alterar tributos preexistentes
+    Dado que existe um cadastro com valores de ISS, ICMS, PIS e COFINS
+    Quando eu acessar a opção de editar o cadastro
+    E preencher o campo "CBS" com um valor válido
+    E preencher o campo "IBS" com um valor válido
+    E confirmar a edição
+    Então os valores de ISS, ICMS, PIS e COFINS devem permanecer inalterados
+    E os valores de CBS e IBS devem estar visíveis
+
+  # --- VISUALIZAÇÃO ---
+
+  Cenário: Visualizar cadastro com tributos CBS e IBS na grid
+    Dado que existem cadastros com valores de CBS e IBS
+    Quando eu acessar a listagem de Categories (grid)
+    Então os campos CBS e IBS devem ser exibidos como colunas na grid
+    E os valores devem estar corretamente apresentados
+
+  Cenário: Visualizar detalhes (show) de um cadastro com CBS e IBS
+    Dado que existe um cadastro com valores de CBS e IBS preenchidos
+    Quando eu acessar a visualização detalhada do registro
+    Então os campos CBS e IBS devem ser exibidos com seus valores
+
+  # --- REMOÇÃO ---
+
+  Cenário: Remover cadastro que possui valores de CBS e IBS
+    Dado que existe um cadastro com valores de CBS e IBS preenchidos
+    Quando eu acessar a opção de remover o cadastro
+    E confirmar a remoção
+    Então o cadastro deve ser removido com sucesso
+    E o registro não deve mais aparecer na listagem
+
+  # --- FILTRO ---
+
+  Cenário: Filtrar cadastros pelo tributo CBS
+    Dado que existem cadastros com diferentes valores de CBS
+    Quando eu acessar o recurso de filtro
+    E aplicar um filtro pelo campo "CBS"
+    Então apenas os cadastros que atendem ao critério de CBS devem ser exibidos
+
+  Cenário: Filtrar cadastros pelo tributo IBS
+    Dado que existem cadastros com diferentes valores de IBS
+    Quando eu acessar o recurso de filtro
+    E aplicar um filtro pelo campo "IBS"
+    Então apenas os cadastros que atendem ao critério de IBS devem ser exibidos
+
+  Cenário: Filtrar cadastros combinando CBS e IBS
+    Dado que existem cadastros com diferentes valores de CBS e IBS
+    Quando eu acessar o recurso de filtro
+    E aplicar um filtro pelo campo "CBS"
+    E aplicar um filtro pelo campo "IBS"
+    Então apenas os cadastros que atendem a ambos os critérios devem ser exibidos
+
+  Cenário: Filtrar cadastros sem valores de CBS e IBS
+    Quando eu acessar o recurso de filtro
+    E aplicar um filtro para registros com CBS vazio
+    Então devem ser exibidos apenas cadastros sem valor de CBS
+
+  # --- REGRA DE UNICIDADE ---
+
+  Cenário: Tentar criar cadastro duplicado com mesmos valores de CBS e IBS
+    Dado que existe um cadastro com valores específicos que violam a regra de unicidade
+    Quando eu tentar criar um novo cadastro com os mesmos valores
+    Então o sistema deve exibir uma mensagem de erro de duplicidade
+    E o cadastro não deve ser criado
+
+  # --- REGRESSÃO / NÃO IMPACTO ---
+
+  Cenário: Tributos preexistentes continuam funcionando após inclusão de CBS e IBS
+    Dado que existe um cadastro com valores de ISS, ICMS, ICMS ST, IPI, PIS e COFINS
+    Quando eu visualizar o cadastro
+    Então todos os tributos preexistentes devem estar exibidos corretamente
+    E a criação, edição e remoção dos tributos antigos deve funcionar normalmente
+
+  # --- AUDITORIA ---
+
+  Cenário: Registrar auditoria ao criar cadastro com CBS e IBS
+    Quando eu criar um cadastro com valores de CBS e IBS
+    Então deve ser registrado um log de auditoria com os valores de CBS e IBS
+
+  Cenário: Registrar auditoria ao editar valores de CBS e IBS
+    Dado que existe um cadastro com valores de CBS e IBS
+    Quando eu editar os valores de CBS e IBS
+    Então deve ser registrado um log de auditoria com os valores antigos e novos
+O plano cobre os critérios de aceite da User Story:
+
